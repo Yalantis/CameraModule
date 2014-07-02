@@ -1,6 +1,9 @@
 CameraModule
 ============
-Camera module for Android applications
+Camera module for Android applications.
+
+Screenshots:
+https://www.dropbox.com/sh/2d7svoykpwpwmbw/AAAveLqvtaJ2Zt5NHaEu3-QSa
 
 Usage
 --------
