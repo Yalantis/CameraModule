@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ The MIT License (MIT)
+  ~
+  ~ Copyright (c) 2014 Zillow
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is furnished
+  ~ to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  ~ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  ~ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  -->
+
+<resources>
+
+    <string name="app_name">CameraModule</string>
+    <string name="lbl_string_apply">Apply</string>
+    <string name="lbl_cancel">Cancel</string>
+    <string name="lbl_delete">Delete</string>
+    <string name="lbl_left">Left</string>
+    <string name="lbl_right">Right</string>
+    <string name="lbl_crop">Crop</string>
+    <string name="lbl_camera_unavailable">Camera is not available (in use or does not exist).\nPlease close applications, that may use camera.
+    </string>
+    <string name="lbl_zoom_ratio_value">Zoom: %1.2fx</string>
+    <string name="lbl_open_photo_preview">Open preview photo after shot</string>
+    <string name="lbl_settings">Settings</string>
+    <string name="lbl_hdr">HDR</string>
+    <string name="lbl_close">Close</string>
+    <string name="lbl_focus_mode">Focus mode</string>
+    <string name="lbl_ratio">Ratio</string>
+    <string name="lbl_quality">Quality</string>
+    <string name="lbl_take_another">Take another</string>
+    <string name="lbl_photo_crop">Photo crop</string>
+    <string name="lbl_photo_preview">lbl_photo_preview</string>
+
+</resources>
