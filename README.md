@@ -1,6 +1,30 @@
 CameraModule
 ============
-Android Camera Module
+Camera module for Android applications
+
+Usage
+--------
+In your Application class call managers initializer:
+
+```java
+public class App extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ManagerInitializer.i.init(getApplicationContext());
+    }
+}
+```
+
+Then call `CameraActivity` to use camera:
+
+```java
+Intent intent = new Intent(this, CameraActivity.class);
+intent.putExtra(CameraActivity.PATH, Environment.getExternalStorageDirectory().getPath());
+intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
+startActivity(intent);
+```
+
 
 License
 --------
