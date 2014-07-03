@@ -42,6 +42,15 @@ To create custom layout for `CameraFragment`, please use this ids:
 
 `camera_settings` - `ImageButton` that call `CameraSettingsDialogFragment`
 
+Then put layout resources id to intent extras for `CameraActivty`:
+```java
+Intent intent = new Intent(this, CameraActivity.class);
+intent.putExtra(CameraActivity.PATH, Environment.getExternalStorageDirectory().getPath());
+intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
+intent.putExtra(CameraActivity.LAYOUT_ID, R.layout.fragment_camera_custom);
+startActivity(intent);
+```
+
 License
 --------
 
