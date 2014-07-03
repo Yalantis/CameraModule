@@ -41,7 +41,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -61,6 +60,7 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, CameraActivity.class);
         intent.putExtra(CameraActivity.PATH, Const.FOLDERS.PATH);
         intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
+        intent.putExtra(CameraActivity.LAYOUT_ID, R.layout.fragment_camera_custom);
         startActivity(intent);
     }
 

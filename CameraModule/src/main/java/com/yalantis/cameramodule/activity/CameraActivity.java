@@ -30,6 +30,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
+import com.yalantis.cameramodule.CameraConst;
 import com.yalantis.cameramodule.R;
 import com.yalantis.cameramodule.fragment.CameraFragment;
 import com.yalantis.cameramodule.interfaces.*;
@@ -47,6 +48,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
 
     public static final String PATH = "path";
     public static final String OPEN_PHOTO_PREVIEW = "open_photo_preview";
+    public static final String LAYOUT_ID = "layout_id";
 
     private static final String IMG_PREFIX = "IMG_";
     private static final String IMG_POSTFIX = ".jpg";
@@ -76,9 +78,14 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
     }
 
     private void init() {
-        CameraFragment fragment = CameraFragment.newInstance(this, createCameraParams());
+        CameraFragment fragment;
+        int layoutId = getIntent().getIntExtra(LAYOUT_ID, -1);
+        if (layoutId > 0) {
+            fragment = CameraFragment.newInstance(layoutId, this, createCameraParams());
+        } else {
+            fragment = CameraFragment.newInstance(this, createCameraParams());
+        }
         fragment.setParamsChangedListener(this);
-        fragment.setRawCallback(this);
         keyEventsListener = fragment;
         photoSavedListener = fragment;
         getFragmentManager()
@@ -124,7 +131,9 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         saving = false;
         Toast.makeText(this, "Photo " + name + " saved", Toast.LENGTH_SHORT).show();
         Timber.d("Photo " + name + " saved");
-        printExifOrientation(path);
+        if (CameraConst.DEBUG) {
+            printExifOrientation(path);
+        }
         if (openPreview) {
             openPreview(path, name);
         }
@@ -155,14 +164,13 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
     }
 
     private void printExifOrientation(String path) {
-        ExifInterface exif = null;
         try {
-            exif = new ExifInterface(path);
+            ExifInterface exif = new ExifInterface(path);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            Timber.d("Orientation: " + orientation);
         } catch (IOException e) {
             Timber.e(e, e.getMessage());
         }
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        Timber.d("orientation: " + orientation);
     }
 
     @Override

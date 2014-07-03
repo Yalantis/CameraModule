@@ -23,9 +23,6 @@
 
 package com.yalantis.cameramodule.fragment;
 
-import java.util.Arrays;
-import java.util.List;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +31,6 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
-
 import com.yalantis.cameramodule.R;
 import com.yalantis.cameramodule.adapters.ObjectToStringAdapter;
 import com.yalantis.cameramodule.interfaces.CameraParamsChangedListener;
@@ -42,6 +38,9 @@ import com.yalantis.cameramodule.model.FocusMode;
 import com.yalantis.cameramodule.model.HDRMode;
 import com.yalantis.cameramodule.model.Quality;
 import com.yalantis.cameramodule.model.Ratio;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class CameraSettingsDialogFragment extends BaseDialogFragment {
 
@@ -88,7 +87,6 @@ public class CameraSettingsDialogFragment extends BaseDialogFragment {
         if (params.containsKey(CameraFragment.FOCUS_MODE)) {
             id = params.getInt(CameraFragment.FOCUS_MODE);
         }
-
         focusMode = FocusMode.getFocusModeById(id);
         id = 0;
         if (params.containsKey(CameraFragment.HDR_MODE)) {

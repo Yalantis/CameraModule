@@ -23,13 +23,6 @@
 
 package com.yalantis.cameramodule.fragment;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import timber.log.Timber;
 import android.content.res.Resources;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -39,12 +32,18 @@ import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-
 import com.yalantis.cameramodule.CameraConst;
 import com.yalantis.cameramodule.R;
 import com.yalantis.cameramodule.control.CameraPreview;
 import com.yalantis.cameramodule.interfaces.*;
 import com.yalantis.cameramodule.model.*;
+import timber.log.Timber;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CameraFragment extends BaseFragment implements PhotoSavedListener, KeyEventsListener, CameraParamsChangedListener, FocusCallback {
 
@@ -75,23 +74,34 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     private Map<Ratio, Camera.Size> previewSizes;
     private Map<Ratio, Map<Quality, Camera.Size>> pictureSizes;
 
+    private int layoutId;
     private Camera camera;
     private Camera.Parameters parameters;
     private CameraPreview cameraPreview;
-    private FrameLayout previewContainer;
-    private ImageButton mCapture;
+    private ViewGroup previewContainer;
+    private View mCapture;
     private ProgressBar progressBar;
     private ImageButton flashModeButton;
     private TextView mZoomRatioTextView;
     private HDRMode hdrMode;
     private boolean supportedHDR = false;
 
-    public static CameraFragment newInstance(PhotoTakenCallback callback, Bundle params) {
-        CameraFragment cameraFragment = new CameraFragment();
-        cameraFragment.callback = callback;
-        cameraFragment.setArguments(params);
+    public static CameraFragment newInstance(int layoutId, PhotoTakenCallback callback, Bundle params) {
+        CameraFragment fragment = new CameraFragment();
+        fragment.layoutId = layoutId;
+        fragment.callback = callback;
+        fragment.setArguments(params);
 
-        return cameraFragment;
+        return fragment;
+    }
+
+    public static CameraFragment newInstance(PhotoTakenCallback callback, Bundle params) {
+        CameraFragment fragment = new CameraFragment();
+        fragment.callback = callback;
+        fragment.layoutId = R.layout.fragment_camera;
+        fragment.setArguments(params);
+
+        return fragment;
     }
 
     @Override
@@ -138,9 +148,13 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
         if (camera == null) {
             return inflater.inflate(R.layout.fragment_no_camera, container, false);
         }
-        View view = inflater.inflate(R.layout.fragment_camera, container, false);
+        View view = inflater.inflate(layoutId, container, false);
 
-        previewContainer = (FrameLayout) view.findViewById(R.id.camera_preview);
+        try {
+            previewContainer = (ViewGroup) view.findViewById(R.id.camera_preview);
+        } catch (NullPointerException e) {
+            throw new RuntimeException("You should add container that extends ViewGroup for CameraPreview.");
+        }
         ImageView canvasFrame = new ImageView(activity);
         cameraPreview = new CameraPreview(activity, camera, canvasFrame, this, this);
         previewContainer.addView(cameraPreview);
@@ -149,47 +163,58 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
 
         progressBar = (ProgressBar) view.findViewById(R.id.progress);
 
-        mCapture = (ImageButton) view.findViewById(R.id.capture);
-        mCapture.setOnClickListener(new View.OnClickListener() {
+        mCapture = view.findViewById(R.id.capture);
+        if (mCapture != null) {
+            mCapture.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                takePhoto();
-            }
+                @Override
+                public void onClick(View v) {
+                    takePhoto();
+                }
 
-        });
+            });
+        }
 
         flashModeButton = (ImageButton) view.findViewById(R.id.flash_mode);
-        flashModeButton.setOnClickListener(new View.OnClickListener() {
+        if (flashModeButton != null) {
+            flashModeButton.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                switchFlashMode();
-                onFlashModeChanged(flashMode.getId());
-            }
-        });
-        setFlashModeImage(flashMode);
+                @Override
+                public void onClick(View v) {
+                    switchFlashMode();
+                    onFlashModeChanged(flashMode.getId());
+                }
+            });
+            setFlashModeImage(flashMode);
+        }
 
         setPreviewContainerSize(mScreenWidth, mScreenHeight, ratio);
 
         mZoomRatioTextView = (TextView) view.findViewById(R.id.zoom_ratio);
-        setZoomRatioText(zoomIndex);
+        if (mZoomRatioTextView != null) {
+            setZoomRatioText(zoomIndex);
+        }
 
-        view.findViewById(R.id.camera_settings).setOnClickListener(new View.OnClickListener() {
+        View cameraSettings = view.findViewById(R.id.camera_settings);
+        if (cameraSettings != null) {
+            view.findViewById(R.id.camera_settings).setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                CameraSettingsDialogFragment.newInstance(packSettings(), CameraFragment.this).show(getFragmentManager());
-            }
-        });
+                @Override
+                public void onClick(View v) {
+                    CameraSettingsDialogFragment.newInstance(packSettings(), CameraFragment.this).show(getFragmentManager());
+                }
+            });
+        }
 
         View controls = view.findViewById(R.id.controls_layout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT);
-        params.topMargin = mStatusBarHeight;
-        params.bottomMargin = mNavigationBarHeight;
-        controls.setLayoutParams(params);
+        if (controls != null) {
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT);
+            params.topMargin = mStatusBarHeight;
+            params.bottomMargin = mNavigationBarHeight;
+            controls.setLayoutParams(params);
+        }
 
         return view;
     }
@@ -427,7 +452,9 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     public void takePhoto() {
         mCapture.setEnabled(false);
         mCapture.setVisibility(View.INVISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         cameraPreview.takePicture();
     }
 
@@ -438,8 +465,10 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     }
 
     private void setZoomRatioText(int index) {
-        float value = zoomRatios.get(index) / 100.0f;
-        mZoomRatioTextView.setText(getString(R.string.lbl_zoom_ratio_value, value));
+        if (mZoomRatioTextView != null) {
+            float value = zoomRatios.get(index) / 100.0f;
+            mZoomRatioTextView.setText(getString(R.string.lbl_zoom_ratio_value, value));
+        }
     }
 
     private void switchFlashMode() {
@@ -598,7 +627,9 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     public void photoSaved(String path, String name) {
         mCapture.setEnabled(true);
         mCapture.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     private void initOrientationListener() {
