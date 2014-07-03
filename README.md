@@ -28,6 +28,8 @@ intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
 startActivity(intent);
 ```
 
+Customising
+--------
 To create custom layout for `CameraFragment`, please use this ids:
 
 `camera_preview` - Container for `CameraPreview` that extends ViewGroup.
