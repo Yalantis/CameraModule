@@ -31,10 +31,15 @@ startActivity(intent);
 To create custom layout for `CameraFragment`, please use this ids:
 
 `camera_preview` - Container for `CameraPreview` that extends ViewGroup.
+
 `capture` - View for capturing photos
+
 `zoom_ratio` - `TextView` for displaying zoom ratio value
+
 `flash_mode` - `ImageButton` for displaying and switching flash mode
+
 `progress` - `ProgressBar` that indicates that capturing or saving photo in progress
+
 `camera_settings` - `ImageButton` that call `CameraSettingsDialogFragment`
 
 License
