@@ -24,17 +24,31 @@
 package com.yalantis.cameramodule.control;
 
 import android.app.Activity;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.hardware.Camera;
-import android.view.*;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
 import android.widget.ImageView;
+
 import com.yalantis.cameramodule.interfaces.FocusCallback;
 import com.yalantis.cameramodule.interfaces.KeyEventsListener;
 import com.yalantis.cameramodule.model.FocusMode;
-import timber.log.Timber;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
+
+import timber.log.Timber;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback, Camera.AutoFocusCallback {
 
@@ -52,6 +66,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Paint paint;
     private FocusMode focusMode = FocusMode.AUTO;
 
+    private boolean hasAutoFocus;
     private boolean focusing;
     private boolean focused;
     private float focusKoefW;
@@ -68,6 +83,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         this.canvasFrame = canvasFrame;
         this.focusCallback = focusCallback;
         this.keyEventsListener = keyEventsListener;
+
+        List<String> supportedFocusModes = camera.getParameters().getSupportedFocusModes();
+        hasAutoFocus = supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO);
+
         initHolder();
     }
 
@@ -141,15 +160,19 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void takePicture() {
-        if (focusMode == FocusMode.AUTO) {
-            startFocusing();
-        }
-        if (focusMode == FocusMode.TOUCH) {
-            if (focused && tapArea != null) {
-                focused();
-            } else {
+        if (hasAutoFocus) {
+            if (focusMode == FocusMode.AUTO) {
                 startFocusing();
             }
+            if (focusMode == FocusMode.TOUCH) {
+                if (focused && tapArea != null) {
+                    focused();
+                } else {
+                    startFocusing();
+                }
+            }
+        } else {
+            focused();
         }
     }
 
@@ -195,17 +218,24 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void clearCameraFocus() {
-        focused = false;
-        camera.cancelAutoFocus();
-        if (canvas != null) {
-            tapArea = null;
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setFocusAreas(null);
-            parameters.setMeteringAreas(null);
-            camera.setParameters(parameters);
-            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            canvasFrame.draw(canvas);
-            canvasFrame.invalidate();
+        if (hasAutoFocus) {
+            focused = false;
+            camera.cancelAutoFocus();
+            if (canvas != null) {
+                tapArea = null;
+                try {
+                    Camera.Parameters parameters = camera.getParameters();
+                    parameters.setFocusAreas(null);
+                    parameters.setMeteringAreas(null);
+                    camera.setParameters(parameters);
+                } catch (Exception e) {
+                    Timber.e(e, "clearCameraFocus");
+                } finally {
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    canvasFrame.draw(canvas);
+                    canvasFrame.invalidate();
+                }
+            }
         }
     }
 
@@ -318,7 +348,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     private class CameraTouchListener implements OnTouchListener {
 
-        private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(activity, new ScaleListener());;
+        private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(activity, new ScaleListener());
         private GestureDetector mTapDetector = new GestureDetector(activity, new TapListener());
 
         @Override
@@ -328,7 +358,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 mScaleDetector.onTouchEvent(event);
                 return true;
             }
-            if (focusMode == FocusMode.TOUCH) {
+            if (hasAutoFocus && focusMode == FocusMode.TOUCH) {
                 mTapDetector.onTouchEvent(event);
                 return true;
             }

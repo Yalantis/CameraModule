@@ -47,6 +47,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         CameraParamsChangedListener {
 
     public static final String PATH = "path";
+    public static final String USE_FRONT_CAMERA = "use_front_camera";
     public static final String OPEN_PHOTO_PREVIEW = "open_photo_preview";
     public static final String LAYOUT_ID = "layout_id";
 
@@ -70,9 +71,13 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         if (TextUtils.isEmpty(path = getIntent().getStringExtra(PATH))) {
             path = Environment.getExternalStorageDirectory().getPath();
         }
-        openPreview = SharedPrefManager.i.isOpenPhotoPreview();
-        if (openPreview != getIntent().getBooleanExtra(OPEN_PHOTO_PREVIEW, openPreview)) {
+        openPreview = getIntent().getBooleanExtra(OPEN_PHOTO_PREVIEW, SharedPrefManager.i.isOpenPhotoPreview());
+        if (openPreview != SharedPrefManager.i.isOpenPhotoPreview()) {
             SharedPrefManager.i.setOpenPhotoPreview(openPreview);
+        }
+        boolean useFrontCamera = getIntent().getBooleanExtra(USE_FRONT_CAMERA, SharedPrefManager.i.useFrontCamera());
+        if (useFrontCamera != SharedPrefManager.i.useFrontCamera()) {
+            SharedPrefManager.i.setUseFrontCamera(useFrontCamera);
         }
         init();
     }
@@ -102,6 +107,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         bundle.putInt(CameraFragment.HDR_MODE, SharedPrefManager.i.isHDR());
         bundle.putInt(CameraFragment.QUALITY, SharedPrefManager.i.getCameraQuality());
         bundle.putInt(CameraFragment.FOCUS_MODE, SharedPrefManager.i.getCameraFocusMode());
+        bundle.putBoolean(CameraFragment.FRONT_CAMERA, SharedPrefManager.i.useFrontCamera());
 
         return bundle;
     }
