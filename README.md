@@ -25,6 +25,7 @@ Then call `CameraActivity` to use camera:
 Intent intent = new Intent(this, CameraActivity.class);
 intent.putExtra(CameraActivity.PATH, Environment.getExternalStorageDirectory().getPath());
 intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
+intent.putExtra(CameraActivity.USE_FRONT_CAMERA, false);
 startActivity(intent);
 ```
 
