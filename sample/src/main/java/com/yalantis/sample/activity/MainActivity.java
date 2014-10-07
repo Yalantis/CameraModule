@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
         intent.putExtra(CameraActivity.PATH, Const.FOLDERS.PATH);
         intent.putExtra(CameraActivity.OPEN_PHOTO_PREVIEW, true);
         intent.putExtra(CameraActivity.LAYOUT_ID, R.layout.fragment_camera_custom);
+        intent.putExtra(CameraActivity.FRONT_CAMERA, true);
         startActivity(intent);
     }
 

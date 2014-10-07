@@ -52,6 +52,7 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     public static final String FOCUS_MODE = "focus_mode";
     public static final String FLASH_MODE = "flash_mode";
     public static final String HDR_MODE = "hdr_mode";
+    public static final String FRONT_CAMERA = "front_camera";
     private PhotoTakenCallback callback;
     private RawPhotoTakenCallback rawCallback;
     private CameraParamsChangedListener paramsChangedListener;
@@ -107,7 +108,8 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        camera = getCameraInstance();
+        boolean useFrontCamera = getArguments().getBoolean(RATIO, false);
+        camera = getCameraInstance(useFrontCamera);
         if (camera == null) {
             return;
         }
@@ -222,14 +224,41 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     /**
      * A safe way to get an instance of the Camera object.
      */
-    private Camera getCameraInstance() {
+    private Camera getCameraInstance(boolean useFrontCamera) {
         Camera c = null;
         try {
-            c = Camera.open();
+            c = Camera.open(getCameraId(useFrontCamera));
         } catch (Exception e) {
             Timber.e(e, getString(R.string.lbl_camera_unavailable));
         }
         return c;
+    }
+
+    private int getCameraId(boolean useFrontCamera) {
+        int count = Camera.getNumberOfCameras();
+        int result = -1;
+
+        if (count > 0) {
+            result = 0;
+
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            for (int i = 0; i < count; i++) {
+                Camera.getCameraInfo(i, info);
+
+                if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK
+                        && !useFrontCamera) {
+                    result = i;
+                    break;
+                } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT
+                        && useFrontCamera) {
+                    result = i;
+                    break;
+                }
+            }
+//            facingCamera = info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT;
+        }
+//        cameraId = result;
+        return result;
     }
 
     @Override

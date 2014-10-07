@@ -47,6 +47,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         CameraParamsChangedListener {
 
     public static final String PATH = "path";
+    public static final String FRONT_CAMERA = "front_camera";
     public static final String OPEN_PHOTO_PREVIEW = "open_photo_preview";
     public static final String LAYOUT_ID = "layout_id";
 
@@ -102,6 +103,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         bundle.putInt(CameraFragment.HDR_MODE, SharedPrefManager.i.isHDR());
         bundle.putInt(CameraFragment.QUALITY, SharedPrefManager.i.getCameraQuality());
         bundle.putInt(CameraFragment.FOCUS_MODE, SharedPrefManager.i.getCameraFocusMode());
+        bundle.putBoolean(CameraFragment.FRONT_CAMERA, SharedPrefManager.i.useFrontCamera());
 
         return bundle;
     }
