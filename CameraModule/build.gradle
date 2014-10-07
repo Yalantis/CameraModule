@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 repositories {
     mavenCentral()
@@ -30,6 +30,6 @@ android {
 dependencies {
     compile 'com.edmodo:cropper:1.0.1'
     compile 'com.squareup.picasso:picasso:2.2.0'
-    compile 'com.jakewharton.timber:timber:2.2.+'
+    compile 'com.jakewharton.timber:timber:2.2.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

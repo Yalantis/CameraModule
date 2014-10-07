@@ -51,7 +51,7 @@ public class RotatePhotoTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        Bitmap bitmap = BitmapFactory.decodeFile(path); // todo NPE
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
