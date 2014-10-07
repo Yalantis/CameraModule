@@ -66,6 +66,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Paint paint;
     private FocusMode focusMode = FocusMode.AUTO;
 
+    private boolean hasAutoFocus;
     private boolean focusing;
     private boolean focused;
     private float focusKoefW;
@@ -82,6 +83,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         this.canvasFrame = canvasFrame;
         this.focusCallback = focusCallback;
         this.keyEventsListener = keyEventsListener;
+
+        List<String> supportedFocusModes = camera.getParameters().getSupportedFocusModes();
+        hasAutoFocus = supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO);
+
         initHolder();
     }
 
@@ -137,10 +142,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void setFocusMode(FocusMode focusMode) {
-        clearCameraFocus();
-        this.focusMode = focusMode;
-        focusing = false;
-        setOnTouchListener(new CameraTouchListener());
+            clearCameraFocus();
+            this.focusMode = focusMode;
+            focusing = false;
+            setOnTouchListener(new CameraTouchListener());
     }
 
     private void startFocusing() {
@@ -155,8 +160,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void takePicture() {
-        List<String> supportedFocusModes = camera.getParameters().getSupportedFocusModes();
-        boolean hasAutoFocus = supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO);
         if (hasAutoFocus) {
             if (focusMode == FocusMode.AUTO) {
                 startFocusing();
@@ -215,21 +218,23 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     private void clearCameraFocus() {
-        focused = false;
-        camera.cancelAutoFocus();
-        if (canvas != null) {
-            tapArea = null;
-            try {
-                Camera.Parameters parameters = camera.getParameters();
-                parameters.setFocusAreas(null);
-                parameters.setMeteringAreas(null);
-                camera.setParameters(parameters);
-            } catch (Exception e) {
-                Timber.e(e, "clearCameraFocus");
-            } finally {
-                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                canvasFrame.draw(canvas);
-                canvasFrame.invalidate();
+        if (hasAutoFocus) {
+            focused = false;
+            camera.cancelAutoFocus();
+            if (canvas != null) {
+                tapArea = null;
+                try {
+                    Camera.Parameters parameters = camera.getParameters();
+                    parameters.setFocusAreas(null);
+                    parameters.setMeteringAreas(null);
+                    camera.setParameters(parameters);
+                } catch (Exception e) {
+                    Timber.e(e, "clearCameraFocus");
+                } finally {
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    canvasFrame.draw(canvas);
+                    canvasFrame.invalidate();
+                }
             }
         }
     }
@@ -344,7 +349,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private class CameraTouchListener implements OnTouchListener {
 
         private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(activity, new ScaleListener());
-        ;
         private GestureDetector mTapDetector = new GestureDetector(activity, new TapListener());
 
         @Override
@@ -354,7 +358,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 mScaleDetector.onTouchEvent(event);
                 return true;
             }
-            if (focusMode == FocusMode.TOUCH) {
+            if (hasAutoFocus && focusMode == FocusMode.TOUCH) {
                 mTapDetector.onTouchEvent(event);
                 return true;
             }
