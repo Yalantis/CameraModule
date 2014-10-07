@@ -142,10 +142,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void setFocusMode(FocusMode focusMode) {
-            clearCameraFocus();
-            this.focusMode = focusMode;
-            focusing = false;
-            setOnTouchListener(new CameraTouchListener());
+        clearCameraFocus();
+        this.focusMode = focusMode;
+        focusing = false;
+        setOnTouchListener(new CameraTouchListener());
     }
 
     private void startFocusing() {
