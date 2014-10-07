@@ -47,7 +47,7 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         CameraParamsChangedListener {
 
     public static final String PATH = "path";
-    public static final String FRONT_CAMERA = "front_camera";
+    public static final String USE_FRONT_CAMERA = "use_front_camera";
     public static final String OPEN_PHOTO_PREVIEW = "open_photo_preview";
     public static final String LAYOUT_ID = "layout_id";
 
@@ -74,6 +74,10 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         openPreview = SharedPrefManager.i.isOpenPhotoPreview();
         if (openPreview != getIntent().getBooleanExtra(OPEN_PHOTO_PREVIEW, openPreview)) {
             SharedPrefManager.i.setOpenPhotoPreview(openPreview);
+        }
+        boolean useFrontCamera = getIntent().getBooleanExtra(USE_FRONT_CAMERA, SharedPrefManager.i.useFrontCamera());
+        if (useFrontCamera != SharedPrefManager.i.useFrontCamera()) {
+            SharedPrefManager.i.setUseFrontCamera(useFrontCamera);
         }
         init();
     }

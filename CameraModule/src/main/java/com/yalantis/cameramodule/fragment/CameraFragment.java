@@ -108,7 +108,7 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        boolean useFrontCamera = getArguments().getBoolean(RATIO, false);
+        boolean useFrontCamera = getArguments().getBoolean(FRONT_CAMERA, false);
         camera = getCameraInstance(useFrontCamera);
         if (camera == null) {
             return;
