@@ -199,13 +199,18 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         camera.cancelAutoFocus();
         if (canvas != null) {
             tapArea = null;
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setFocusAreas(null);
-            parameters.setMeteringAreas(null);
-            camera.setParameters(parameters);
-            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-            canvasFrame.draw(canvas);
-            canvasFrame.invalidate();
+            try {
+                Camera.Parameters parameters = camera.getParameters();
+                parameters.setFocusAreas(null);
+                parameters.setMeteringAreas(null);
+                camera.setParameters(parameters);
+            } catch (Exception e) {
+                Timber.e(e, "clearCameraFocus");
+            }   finally {
+                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                canvasFrame.draw(canvas);
+                canvasFrame.invalidate();
+            }
         }
     }
 

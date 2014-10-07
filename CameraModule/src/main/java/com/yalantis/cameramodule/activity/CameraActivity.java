@@ -71,8 +71,8 @@ public class CameraActivity extends BaseActivity implements PhotoTakenCallback, 
         if (TextUtils.isEmpty(path = getIntent().getStringExtra(PATH))) {
             path = Environment.getExternalStorageDirectory().getPath();
         }
-        openPreview = SharedPrefManager.i.isOpenPhotoPreview();
-        if (openPreview != getIntent().getBooleanExtra(OPEN_PHOTO_PREVIEW, openPreview)) {
+        openPreview = getIntent().getBooleanExtra(OPEN_PHOTO_PREVIEW, SharedPrefManager.i.isOpenPhotoPreview());
+        if (openPreview != SharedPrefManager.i.isOpenPhotoPreview()) {
             SharedPrefManager.i.setOpenPhotoPreview(openPreview);
         }
         boolean useFrontCamera = getIntent().getBooleanExtra(USE_FRONT_CAMERA, SharedPrefManager.i.useFrontCamera());
