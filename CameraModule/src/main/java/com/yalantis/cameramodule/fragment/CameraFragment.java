@@ -31,19 +31,34 @@ import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import com.yalantis.cameramodule.CameraConst;
 import com.yalantis.cameramodule.R;
 import com.yalantis.cameramodule.control.CameraPreview;
-import com.yalantis.cameramodule.interfaces.*;
-import com.yalantis.cameramodule.model.*;
-import timber.log.Timber;
+import com.yalantis.cameramodule.interfaces.CameraParamsChangedListener;
+import com.yalantis.cameramodule.interfaces.FocusCallback;
+import com.yalantis.cameramodule.interfaces.KeyEventsListener;
+import com.yalantis.cameramodule.interfaces.PhotoSavedListener;
+import com.yalantis.cameramodule.interfaces.PhotoTakenCallback;
+import com.yalantis.cameramodule.interfaces.RawPhotoTakenCallback;
+import com.yalantis.cameramodule.model.FlashMode;
+import com.yalantis.cameramodule.model.FocusMode;
+import com.yalantis.cameramodule.model.HDRMode;
+import com.yalantis.cameramodule.model.Quality;
+import com.yalantis.cameramodule.model.Ratio;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 public class CameraFragment extends BaseFragment implements PhotoSavedListener, KeyEventsListener, CameraParamsChangedListener, FocusCallback {
 
@@ -66,7 +81,6 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     private int mScreenHeight;
     private int mNavigationBarHeight;
     private int mStatusBarHeight;
-    private int currOrientation;
     private List<Integer> zoomRatios;
     private int zoomIndex;
     private int minZoomIndex;
@@ -86,6 +100,9 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     private TextView mZoomRatioTextView;
     private HDRMode hdrMode;
     private boolean supportedHDR = false;
+
+    private int cameraId;
+    private int outputOrientation;
 
     public static CameraFragment newInstance(int layoutId, PhotoTakenCallback callback, Bundle params) {
         CameraFragment fragment = new CameraFragment();
@@ -255,9 +272,8 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
                     break;
                 }
             }
-//            facingCamera = info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT;
         }
-//        cameraId = result;
+        cameraId = result;
         return result;
     }
 
@@ -320,7 +336,7 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             if (callback != null) {
-                callback.photoTaken(data.clone(), currOrientation);
+                callback.photoTaken(data.clone(), outputOrientation);
             }
             camera.startPreview();
             cameraPreview.onPictureTaken();
@@ -572,12 +588,9 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     }
 
     /**
-     * @param width
-     *            Screen width
-     * @param height
-     *            Screen height
-     * @param ratio
-     *            Required ratio
+     * @param width  Screen width
+     * @param height Screen height
+     * @param ratio  Required ratio
      */
     private void setPreviewContainerSize(int width, int height, Ratio ratio) {
         height = (width / ratio.h) * ratio.w;
@@ -666,20 +679,38 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
 
             @Override
             public void onOrientationChanged(int orientation) {
-                if (orientation == ORIENTATION_UNKNOWN) {
-                    return;
-                }
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.getCameraInfo(0, info);
-                orientation = (orientation + 45) / 90 * 90;
-                int rotation = (info.orientation + orientation) % 360;
-                synchronized (parameters) {
-                    parameters.setRotation(rotation);
-                    camera.setParameters(parameters);
-                    currOrientation = rotation;
+                if (camera != null && orientation != ORIENTATION_UNKNOWN) {
+                    int newOutputOrientation = getCameraPictureRotation(orientation);
+
+                    if (newOutputOrientation != outputOrientation) {
+                        outputOrientation = newOutputOrientation;
+
+                        Camera.Parameters params = camera.getParameters();
+                        params.setRotation(outputOrientation);
+                        try {
+                            camera.setParameters(params);
+                        } catch (Exception e) {
+                            Timber.e(e, "Exception updating camera parameters in orientation change");
+                        }
+                    }
                 }
             }
         };
     }
 
+    private int getCameraPictureRotation(int orientation) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int rotation;
+
+        orientation = (orientation + 45) / 90 * 90;
+
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            rotation = (info.orientation - orientation + 360) % 360;
+        } else { // back-facing camera
+            rotation = (info.orientation + orientation) % 360;
+        }
+
+        return (rotation);
+    }
 }
