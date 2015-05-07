@@ -31,11 +31,7 @@ import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.yalantis.cameramodule.CameraConst;
 import com.yalantis.cameramodule.R;
@@ -60,7 +56,7 @@ import java.util.Map;
 
 import timber.log.Timber;
 
-public class CameraFragment extends BaseFragment implements PhotoSavedListener, KeyEventsListener, CameraParamsChangedListener, FocusCallback {
+public class CameraFragment extends com.yalantis.cameramodule.fragment.BaseFragment implements PhotoSavedListener, KeyEventsListener, CameraParamsChangedListener, FocusCallback {
 
     public static final String QUALITY = "quality";
     public static final String RATIO = "ratio";
@@ -100,6 +96,7 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
     private TextView mZoomRatioTextView;
     private HDRMode hdrMode;
     private boolean supportedHDR = false;
+    private boolean supportedFlash = false;
 
     private int cameraId;
     private int outputOrientation;
@@ -145,6 +142,15 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
                     break;
                 }
             }
+        }
+        //it returns false positive
+        /*getActivity().getApplicationContext().getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);*/
+        List<String> flashModes = parameters.getSupportedFlashModes();
+        if (flashModes == null || flashModes.size() <= 1) { /* Device has no flash */
+            supportedFlash = false;
+        } else {
+            supportedFlash = true;
         }
         if (CameraConst.DEBUG) {
             Timber.d("PictureSizesRatioMap:");
@@ -196,15 +202,19 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
 
         flashModeButton = (ImageButton) view.findViewById(R.id.flash_mode);
         if (flashModeButton != null) {
-            flashModeButton.setOnClickListener(new View.OnClickListener() {
+            if (supportedFlash) {
+                flashModeButton.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-                    switchFlashMode();
-                    onFlashModeChanged(flashMode.getId());
-                }
-            });
-            setFlashModeImage(flashMode);
+                    @Override
+                    public void onClick(View v) {
+                        switchFlashMode();
+                        onFlashModeChanged(flashMode.getId());
+                    }
+                });
+                setFlashModeImage(flashMode);
+            } else {
+                flashModeButton.setVisibility(Button.GONE);
+            }
         }
 
         setPreviewContainerSize(mScreenWidth, mScreenHeight, ratio);
@@ -220,7 +230,7 @@ public class CameraFragment extends BaseFragment implements PhotoSavedListener, 
 
                 @Override
                 public void onClick(View v) {
-                    CameraSettingsDialogFragment.newInstance(packSettings(), CameraFragment.this).show(getFragmentManager());
+                    com.yalantis.cameramodule.fragment.CameraSettingsDialogFragment.newInstance(packSettings(), CameraFragment.this).show(getFragmentManager());
                 }
             });
         }
