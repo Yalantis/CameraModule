@@ -54,12 +54,18 @@ intent.putExtra(CameraActivity.LAYOUT_ID, R.layout.fragment_camera_custom);
 startActivity(intent);
 ```
 
+#### Let us know!
+
+We’d be really happy if you sent us links to your projects where you use our component. Just send an email to github@yalantis.com And do let us know if you have any questions or suggestion regarding the animation. 
+
+P.S. We’re going to publish more awesomeness wrapped in code and a tutorial on how to make UI for Android (iOS) better than better. Stay tuned!
+
 License
 --------
 
 	The MIT License (MIT)
 	
-		Copyright (c) 2014 Zillow
+		Copyright (c) 2015 Zillow
 	
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
